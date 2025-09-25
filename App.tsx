@@ -7,19 +7,25 @@
 
 import { useState } from 'react';
 import { StatusBar, StyleSheet, Text, useColorScheme } from 'react-native';
-import {
-  SafeAreaProvider,
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 type Task = {
   id: number;
   title: string;
-}
+};
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
   const [task, setTask] = useState<Task[]>([]);
+  const [search, setSearch] = useState('');
+
+  const addTaskHandler = (todo: Task) => {
+    const newTask: Task = {
+      id: Date.now(),
+      title: search,
+    };
+    setTask([...task, newTask]);
+  };
 
   return (
     <SafeAreaProvider>
@@ -27,7 +33,6 @@ function App() {
       <SafeAreaView style={styles.safeAreaStyle}>
         <Text style={styles.titleText}>Todo Screen</Text>
         {/* Add Todo Form Here - Kaushik */}
-
 
         {/* Todo List Start here - Harsh */}
 
@@ -49,7 +54,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     fontWeight: 'bold',
-  }
+  },
 });
 
 export default App;
