@@ -20,23 +20,13 @@ type Task = {
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
   const [addTask, setAddTask] = useState('');
-  const [task, setTask] = useState<Task[]>([
-    { id: 1, title: 'Learn Zustand' },
-    { id: 2, title: 'Learn git and github' },
-    { id: 3, title: 'Learn git and github' },
-    { id: 4, title: 'Learn git and github' },
-    { id: 5, title: 'Learn git and github' },
-    { id: 6, title: 'Learn git and github' },
-    { id: 7, title: 'Learn git and github' },
-    { id: 8, title: 'Learn git and github' },
-    { id: 9, title: 'Learn git and github' },
-    { id: 10, title: 'Learn git and github' },
-    { id: 11, title: 'Learn git and github' },
-  ]);
+  const [task, setTask] = useState<Task[]>([]);
+  const [taskID, setTaskID] = useState(0);
 
   const addTaskHandler = () => {
+    setTaskID(prev => prev + 1);
     const newTask: Task = {
-      id: task.length + 1,
+      id: taskID,
       title: addTask,
     };
     setTask([...task, newTask]);
@@ -44,6 +34,7 @@ function App() {
   };
 
   const removeTask = (id: number) => {
+    // setTaskID(prev => prev - 1);
     const list = task.filter(item => item.id !== id);
     setTask(list);
   };
