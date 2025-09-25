@@ -19,17 +19,7 @@ type Task = {
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
-  const [search, setSearch] = useState('');
-
-  const addTaskHandler = () => {
-    const newTask: Task = {
-      id: Date.now(),
-      title: search,
-    };
-    setTask([...task, newTask]);
-    setSearch('');
-  };
-
+  const [addTask, setAddTask] = useState('');
   const [task, setTask] = useState<Task[]>([
     { id: 1, title: 'Learn Zustand' },
     { id: 2, title: 'Learn git and github' },
@@ -43,6 +33,15 @@ function App() {
     { id: 10, title: 'Learn git and github' },
     { id: 11, title: 'Learn git and github' },
   ]);
+
+  const addTaskHandler = () => {
+    const newTask: Task = {
+      id: task.length + 1,
+      title: addTask,
+    };
+    setTask([...task, newTask]);
+    setAddTask('');
+  };
 
   const removeTask = (id: number) => {
     const list = task.filter(item => item.id !== id);
@@ -70,11 +69,10 @@ function App() {
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <SafeAreaView style={styles.safeAreaStyle}>
         <Text style={styles.titleText}>Todo Screen</Text>
-        {/* Add Todo Form Here - Jigar */}
         <View style={styles.inputContainer}>
           <TextInput
-            value={search}
-            onChangeText={setSearch}
+            value={addTask}
+            onChangeText={setAddTask}
             keyboardAppearance="dark"
             placeholder="Add task"
             placeholderTextColor={'gray'}
@@ -85,14 +83,12 @@ function App() {
             <Text style={styles.btnText}>Add task</Text>
           </TouchableOpacity>
         </View>
-        {/* Todo List Start here - Harsh */}
         <FlatList
           data={task}
           renderItem={renderTask}
           contentContainerStyle={styles.listStyle}
           showsVerticalScrollIndicator={false}
         />
-        {/* Todo List End Here here */}
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -142,7 +138,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   inputContainer: {
-    width: '100%',
+    gap: 10,
+    marginHorizontal: 16,
+    paddingVertical: 20,
+    alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
