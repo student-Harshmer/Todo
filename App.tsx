@@ -32,7 +32,7 @@ function App() {
     { id: 11, title: 'Learn git and github' },
   ]);
 
-  const removeItem = (id: number) => {
+  const removeTask = (id: number) => {
     const List = task.filter(item => item.id !== id);
     setTask(List);
   };
@@ -45,7 +45,7 @@ function App() {
           <Text style={styles.taskTitleText}>Title: {item.title}</Text>
         </View>
         <TouchableOpacity
-          onPress={() => removeItem(item.id)}
+          onPress={() => removeTask(item.id)}
           style={styles.removeButton}
         >
           <Text>Remove</Text>
