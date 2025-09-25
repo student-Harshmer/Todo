@@ -5,6 +5,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useColorScheme,
   View,
 } from 'react-native';
@@ -31,36 +32,38 @@ function App() {
     { id: 11, title: 'Learn git and github' },
   ]);
 
-  const renderTask: ListRenderItem<Task> = ({ item }) => {
-    return (
-      <View style={styles.taskContainer}>
-        <Text style={styles.idText}>Task ID: {item.id}</Text>
-        <Text style={styles.taskTitleText}>Title: {item.title}</Text>
-      </View>
-    );
-  };
-
   const removeItem = (id: number) => {
     const List = task.filter(item => item.id !== id);
     setTask(List);
   };
 
+  const renderTask: ListRenderItem<Task> = ({ item }) => {
+    return (
+      <View style={styles.taskContainer}>
+        <View>
+          <Text style={styles.idText}>Task ID: {item.id}</Text>
+          <Text style={styles.taskTitleText}>Title: {item.title}</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => removeItem(item.id)}
+          style={styles.removeButton}
+        >
+          <Text>Remove</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <SafeAreaView style={styles.safeAreaStyle}>
         <Text style={styles.titleText}>Todo Screen</Text>
-        {/* Add Todo Form Here - Kaushik */}
-
-        {/* Todo List Start here - Harsh */}
         <FlatList
           data={task}
           renderItem={renderTask}
           contentContainerStyle={styles.listStyle}
           showsVerticalScrollIndicator={false}
         />
-
-        {/* Todo List End Here here */}
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -97,6 +100,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 15,
     fontWeight: 500,
+  },
+  removeButton: {
+    backgroundColor: 'red',
+    width: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    marginTop: 10,
+    paddingVertical: 10,
   },
 });
 
