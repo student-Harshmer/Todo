@@ -89,6 +89,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     borderRadius: 12,
     padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   taskTitleText: {
     marginTop: 10,
