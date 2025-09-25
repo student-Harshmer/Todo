@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 import { useState } from 'react';
 import { FlatList, ListRenderItem, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import {
@@ -27,7 +26,7 @@ function App() {
     { id: 11, title: "Learn git and github" },
   ]);
 
-  const RenderTask: ListRenderItem<Task> = ({ item }) => {
+  const renderTask: ListRenderItem<Task> = ({ item }) => {
     return (
       <View style={styles.taskContainer}>
         <Text style={styles.idText}>Task ID: {item.id}</Text>
@@ -47,7 +46,7 @@ function App() {
         {/* Todo List Start here - Harsh */}
         <FlatList
           data={task}
-          renderItem={RenderTask}
+          renderItem={renderTask}
           contentContainerStyle={styles.listStyle}
           showsVerticalScrollIndicator={false}
         />
