@@ -33,8 +33,8 @@ function App() {
   ]);
 
   const removeTask = (id: number) => {
-    const List = task.filter(item => item.id !== id);
-    setTask(List);
+    const list = task.filter(item => item.id !== id);
+    setTask(list);
   };
 
   const renderTask: ListRenderItem<Task> = ({ item }) => {
