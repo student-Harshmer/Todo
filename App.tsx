@@ -5,11 +5,10 @@
  * @format
  */
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import { StatusBar, StyleSheet, Text, useColorScheme } from 'react-native';
 import {
   SafeAreaProvider,
-  useSafeAreaInsets,
+  SafeAreaView,
 } from 'react-native-safe-area-context';
 
 function App() {
@@ -18,28 +17,32 @@ function App() {
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
+      <SafeAreaView style={styles.safeAreaStyle}>
+        <Text style={styles.titleText}>Todo Screen</Text>
+        {/* Add Todo Form Here - Kaushik */}
+
+
+        {/* Todo List Start here - Harsh */}
+
+        {/* Todo List End Here here */}
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }
 
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
+  safeAreaStyle: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: {
     flex: 1,
   },
+  titleText: {
+    fontSize: 20,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  }
 });
 
 export default App;
