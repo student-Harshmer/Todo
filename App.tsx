@@ -1,17 +1,9 @@
 /* eslint-disable react/no-unstable-nested-components */
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import { useState } from 'react';
-import { FlatList, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { FlatList, ListRenderItem, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import {
   SafeAreaProvider,
   SafeAreaView,
-  useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
 type Task = {
@@ -35,11 +27,7 @@ function App() {
     { id: 11, title: "Learn git and github" },
   ]);
 
-  type TaskProps = {
-    item: Task;
-  }
-
-  const RenderTask = ({ item }: TaskProps) => {
+  const RenderTask: ListRenderItem<Task> = ({ item }) => {
     return (
       <View style={styles.taskContainer}>
         <Text style={styles.idText}>Task ID: {item.id}</Text>
@@ -59,7 +47,7 @@ function App() {
         {/* Todo List Start here - Harsh */}
         <FlatList
           data={task}
-          renderItem={({ item }) => <RenderTask item={item} />}
+          renderItem={RenderTask}
           contentContainerStyle={styles.listStyle}
           showsVerticalScrollIndicator={false}
         />
