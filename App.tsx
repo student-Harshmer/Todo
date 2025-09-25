@@ -5,14 +5,21 @@
  * @format
  */
 
+import { useState } from 'react';
 import { StatusBar, StyleSheet, Text, useColorScheme } from 'react-native';
 import {
   SafeAreaProvider,
   SafeAreaView,
 } from 'react-native-safe-area-context';
 
+type Task = {
+  id: number;
+  title: string;
+}
+
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
+  const [task, setTask] = useState<Task[]>([]);
 
   return (
     <SafeAreaProvider>
