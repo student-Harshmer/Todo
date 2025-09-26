@@ -1,8 +1,8 @@
+/* eslint-disable react/no-unstable-nested-components */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import {
   FlatList,
-  ListRenderItem,
   StatusBar,
   StyleSheet,
   Text,
@@ -10,6 +10,7 @@ import {
   useColorScheme,
   View,
   TextInput,
+  Alert,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
@@ -24,7 +25,6 @@ function App() {
   const [addTask, setAddTask] = useState('');
   const [addDescription, setAddDescription] = useState('');
   const [task, setTask] = useState<Task[]>([]);
-  const [isCompleted, setisCompleted] = useState(false);
   const [section, setSection] = useState(0);
   const [removedTask, setRemovedTask] = useState<Task[]>([]);
   const [completedTask, setCompletedTask] = useState<Task[]>([]);
@@ -42,33 +42,59 @@ function App() {
     }
   };
 
-  const removeTask = (id: number) => {
-    const list = task.filter(item => item.id !== id);
-    setTask(list);
+  const removeTask = (id: number, removeCompleted: boolean) => {
+    if (removeCompleted) {
+      const list = completedTask.filter(x => x.id !== id);
+      setCompletedTask(list);
+    } else {
+      const list = task.filter(item => item.id !== id);
+      setTask(list);
+    }
   };
 
   useEffect(() => {
-    const allTodos = JSON.stringify(task);
-    const removedTodos = JSON.stringify(removedTask);
-    const completedTodos = JSON.stringify(completedTask);
-    const saveTodos = async () => {
+    const loadTodos = async () => {
       try {
-        await AsyncStorage.setItem('AllTodos', allTodos);
-        await AsyncStorage.setItem('RemovedTodos', removedTodos);
-        await AsyncStorage.setItem('Completed', completedTodos);
+        // Load 'AllTodos'
+        const storedTodos = await AsyncStorage.getItem('AllTodos');
+        if (storedTodos !== null) {
+          setTask(JSON.parse(storedTodos));
+        }
+        // Load 'RemovedTodos'
+        const storedRemoved = await AsyncStorage.getItem('RemovedTodos');
+        if (storedRemoved !== null) {
+          setRemovedTask(JSON.parse(storedRemoved));
+        }
+        // Load 'Completed'
+        const storedCompleted = await AsyncStorage.getItem('Completed');
+        if (storedCompleted !== null) {
+          setCompletedTask(JSON.parse(storedCompleted));
+        }
       } catch (e) {
-        console.error('Error saving string data:', e);
+        console.error('Error loading data:', e);
       }
     };
-    saveTodos();
-  });
+    loadTodos();
+  }, []);
 
-  const renderTask: ListRenderItem<Task> = ({ item }) => {
+  const RenderTask = ({ item }: { item: Task }) => {
+    const [isCompleted, setisCompleted] = useState(false);
+
+    const completedTaskHandler = () => {
+      if (!isCompleted) {
+        setCompletedTask([...completedTask, item]);
+      } else {
+        removeTask(item.id, true);
+      }
+    }
+
     return (
       <View style={styles.listContainer}>
         <TouchableOpacity
           onPress={() => {
-            setisCompleted(!isCompleted);
+            setisCompleted(prev => !prev);
+            Alert.alert(`Is comp, ${isCompleted}, ${item.id}`)
+            completedTaskHandler();
           }}
           style={[styles.checkBox]}
         >
@@ -80,7 +106,6 @@ function App() {
               style={[
                 styles.taskTitleText,
                 { textDecorationLine: isCompleted ? 'line-through' : 'none' },
-
                 { color: isCompleted ? 'lightgreen' : '#fff' },
               ]}
             >
@@ -95,7 +120,7 @@ function App() {
             </Text>
           </View>
           <TouchableOpacity
-            onPress={() => removeTask(item.id)}
+            onPress={() => removeTask(item.id, false)}
             style={styles.removeButton}
           >
             <Text>❌</Text>
@@ -104,6 +129,7 @@ function App() {
       </View>
     );
   };
+
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
@@ -178,7 +204,15 @@ function App() {
         {section === 0 && (
           <FlatList
             data={task}
-            renderItem={renderTask}
+            renderItem={({ item }) => <RenderTask item={item} />}
+            contentContainerStyle={styles.listStyle}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+        {section === 1 && (
+          <FlatList
+            data={completedTask}
+            renderItem={({ item }) => <RenderTask item={item} />}
             contentContainerStyle={styles.listStyle}
             showsVerticalScrollIndicator={false}
           />
