@@ -45,7 +45,7 @@ function App() {
     const allTodos = JSON.stringify(task);
     const removedTodos = JSON.stringify(removedTask);
     const completedTodos = JSON.stringify(completedTask);
-    const saveStringData = async () => {
+    const saveTodos = async () => {
       try {
         await AsyncStorage.setItem('AllTodos', allTodos);
         await AsyncStorage.setItem('RemovedTodos', removedTodos);
@@ -54,7 +54,7 @@ function App() {
         console.error('Error saving string data:', e);
       }
     };
-    saveStringData();
+    saveTodos();
   });
 
   const renderTask: ListRenderItem<Task> = ({ item }) => {
