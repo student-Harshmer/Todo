@@ -86,17 +86,14 @@ function App() {
   useEffect(() => {
     const loadTodos = async () => {
       try {
-        // Load 'AllTodos'
         const storedTodos = await AsyncStorage.getItem('AllTodos');
         if (storedTodos !== null) {
           setTask(JSON.parse(storedTodos));
         }
-        // Load 'RemovedTodos'
         const storedRemoved = await AsyncStorage.getItem('RemovedTodos');
         if (storedRemoved !== null) {
           setRemovedTask(JSON.parse(storedRemoved));
         }
-        // Load 'Completed'
         const storedCompleted = await AsyncStorage.getItem('Completed');
         if (storedCompleted !== null) {
           setCompletedTask(JSON.parse(storedCompleted));
