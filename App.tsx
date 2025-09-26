@@ -27,12 +27,14 @@ function App() {
   const [addDescription, setAddDescription] = useState('');
   const [task, setTask] = useState<Task[]>([]);
   const [section, setSection] = useState(0);
-  const [removedTask, setRemovedTask] = useState<Task[]>([{
-    id: 1,
-    title: '69',
-    description: 'six nine',
-    isCompleted: false,
-  }]);
+  const [removedTask, setRemovedTask] = useState<Task[]>([
+    {
+      id: 1,
+      title: '69',
+      description: 'six nine',
+      isCompleted: false,
+    },
+  ]);
   const [completedTask, setCompletedTask] = useState<Task[]>([]);
 
   const addTaskHandler = () => {
@@ -70,14 +72,12 @@ function App() {
         if (prev.some(t => t.id === id)) return prev;
         return [...prev, item];
       });
-
     } else if (section === 1) {
       setCompletedTask(prev => prev.filter(t => t.id !== id));
       setRemovedTask(prev => {
         if (prev.some(t => t.id === id)) return prev;
         return [...prev, item];
       });
-
     } else if (section === 2) {
       setRemovedTask(prev => prev.filter(t => t.id !== id));
     }
@@ -123,57 +123,6 @@ function App() {
     };
     saveTodos();
   }, [task, removedTask, completedTask]);
-  //   const [isCompleted, setisCompleted] = useState(false);
-  //   const completedTaskHandler = () => {
-  //     if (!isCompleted) {
-  //       setCompletedTask([...completedTask, item]);
-  //       setisCompleted(true);
-  //     } else {
-  //       setCompletedTask(completedTask.filter(x => x.id !== item.id));
-  //       setisCompleted(false);
-  //     }
-  //   }
-
-  //   return (
-  //     <View style={styles.listContainer}>
-  //       <TouchableOpacity
-  //         onPress={() => {
-  //           completedTaskHandler();
-  //         }}
-  //         style={[styles.checkBox]}
-  //       >
-  //         <Text>{isCompleted ? '✅' : '☑️'}</Text>
-  //       </TouchableOpacity>
-  //       <View style={styles.taskContainer}>
-  //         <View style={styles.textContainer}>
-  //           <Text
-  //             style={[
-  //               styles.taskTitleText,
-  //               { textDecorationLine: isCompleted ? 'line-through' : 'none' },
-
-  //               { color: isCompleted ? 'lightgreen' : '#fff' },
-  //             ]}
-  //           >
-  //             Title: {item.title}
-  //           </Text>
-  //           <Text
-  //             style={styles.descText}
-  //             numberOfLines={5}
-  //             ellipsizeMode="tail"
-  //           >
-  //             Description: {item.description}
-  //           </Text>
-  //         </View>
-  //         <TouchableOpacity
-  //           onPress={() => removeTask(item.id, item)}
-  //           style={styles.removeButton}
-  //         >
-  //           <Text>❌</Text>
-  //         </TouchableOpacity>
-  //       </View>
-  //     </View>
-  //   );
-  // };
 
   return (
     <SafeAreaProvider>
@@ -249,13 +198,13 @@ function App() {
         {section === 0 && (
           <FlatList
             data={task}
-            renderItem={({ item }) =>
+            renderItem={({ item }) => (
               <RenderTask
                 item={item}
                 onDelete={() => removeTask(item.id, item)}
                 onComplete={() => completedTaskHandler(item)}
               />
-            }
+            )}
             contentContainerStyle={styles.listStyle}
             showsVerticalScrollIndicator={false}
           />
@@ -263,13 +212,13 @@ function App() {
         {section === 1 && (
           <FlatList
             data={completedTask}
-            renderItem={({ item }) =>
+            renderItem={({ item }) => (
               <RenderTask
                 item={item}
                 onDelete={() => removeTask(item.id, item)}
                 onComplete={() => completedTaskHandler(item)}
               />
-            }
+            )}
             contentContainerStyle={styles.listStyle}
             showsVerticalScrollIndicator={false}
           />
@@ -277,13 +226,13 @@ function App() {
         {section === 2 && (
           <FlatList
             data={removedTask}
-            renderItem={({ item }) =>
+            renderItem={({ item }) => (
               <RenderTask
                 item={item}
                 onDelete={() => removeTask(item.id, item)}
                 onComplete={() => completedTaskHandler(item)}
               />
-            }
+            )}
             contentContainerStyle={styles.listStyle}
             showsVerticalScrollIndicator={false}
           />
