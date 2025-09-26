@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 import {
   FlatList,
   ListRenderItem,
@@ -22,6 +23,8 @@ function App() {
   const [addTask, setAddTask] = useState('');
   const [task, setTask] = useState<Task[]>([]);
   const [taskID, setTaskID] = useState(0);
+  const [removedTask, setRemovedTask] = useState<Task[]>([]);
+  const [completedTask, setCompletedTask] = useState<Task[]>([]);
 
   const addTaskHandler = () => {
     setTaskID(prev => prev + 1);
@@ -34,10 +37,25 @@ function App() {
   };
 
   const removeTask = (id: number) => {
-    // setTaskID(prev => prev - 1);
     const list = task.filter(item => item.id !== id);
     setTask(list);
   };
+
+  useEffect(() => {
+    const allTodos = JSON.stringify(task);
+    const removedTodos = JSON.stringify(removedTask);
+    const completedTodos = JSON.stringify(completedTask);
+    const saveTodos = async () => {
+      try {
+        await AsyncStorage.setItem('AllTodos', allTodos);
+        await AsyncStorage.setItem('RemovedTodos', removedTodos);
+        await AsyncStorage.setItem('Completed', completedTodos);
+      } catch (e) {
+        console.error('Error saving string data:', e);
+      }
+    };
+    saveTodos();
+  });
 
   const renderTask: ListRenderItem<Task> = ({ item }) => {
     return (
