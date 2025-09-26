@@ -1,8 +1,8 @@
+/* eslint-disable react/no-unstable-nested-components */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import {
   FlatList,
-  ListRenderItem,
   StatusBar,
   StyleSheet,
   Text,
@@ -12,11 +12,13 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import RenderTask from './src/components/RenderTask';
 
 type Task = {
   id: number;
   title: string;
   description: string;
+  isCompleted: boolean;
 };
 
 function App() {
@@ -24,9 +26,13 @@ function App() {
   const [addTask, setAddTask] = useState('');
   const [addDescription, setAddDescription] = useState('');
   const [task, setTask] = useState<Task[]>([]);
-  const [isCompleted, setisCompleted] = useState(false);
   const [section, setSection] = useState(0);
-  const [removedTask, setRemovedTask] = useState<Task[]>([]);
+  const [removedTask, setRemovedTask] = useState<Task[]>([{
+    id: 1,
+    title: '69',
+    description: 'six nine',
+    isCompleted: false,
+  }]);
   const [completedTask, setCompletedTask] = useState<Task[]>([]);
 
   const addTaskHandler = () => {
@@ -35,6 +41,7 @@ function App() {
         id: Date.now(),
         title: addTask,
         description: addDescription,
+        isCompleted: false,
       };
       setTask([...task, newTask]);
       setAddTask('');
@@ -42,10 +49,64 @@ function App() {
     }
   };
 
-  const removeTask = (id: number) => {
-    const list = task.filter(item => item.id !== id);
-    setTask(list);
+  const completedTaskHandler = (item: Task) => {
+    const isCurrentlyCompleted = completedTask.some(t => t.id === item.id);
+
+    if (!isCurrentlyCompleted) {
+      setTask(prev => prev.filter(t => t.id !== item.id));
+      setCompletedTask(prev => [...prev, item]);
+    } else {
+      setCompletedTask(prev => prev.filter(t => t.id !== item.id));
+      setTask(prev => [...prev, item]);
+    }
   };
+
+  const removeTask = (id: number, item: Task) => {
+    if (section === 0) {
+      setTask(prev => prev.filter(t => t.id !== id));
+      setCompletedTask(prev => prev.filter(t => t.id !== id));
+
+      setRemovedTask(prev => {
+        if (prev.some(t => t.id === id)) return prev;
+        return [...prev, item];
+      });
+
+    } else if (section === 1) {
+      setCompletedTask(prev => prev.filter(t => t.id !== id));
+      setRemovedTask(prev => {
+        if (prev.some(t => t.id === id)) return prev;
+        return [...prev, item];
+      });
+
+    } else if (section === 2) {
+      setRemovedTask(prev => prev.filter(t => t.id !== id));
+    }
+  };
+
+  useEffect(() => {
+    const loadTodos = async () => {
+      try {
+        // Load 'AllTodos'
+        const storedTodos = await AsyncStorage.getItem('AllTodos');
+        if (storedTodos !== null) {
+          setTask(JSON.parse(storedTodos));
+        }
+        // Load 'RemovedTodos'
+        const storedRemoved = await AsyncStorage.getItem('RemovedTodos');
+        if (storedRemoved !== null) {
+          setRemovedTask(JSON.parse(storedRemoved));
+        }
+        // Load 'Completed'
+        const storedCompleted = await AsyncStorage.getItem('Completed');
+        if (storedCompleted !== null) {
+          setCompletedTask(JSON.parse(storedCompleted));
+        }
+      } catch (e) {
+        console.error('Error loading data:', e);
+      }
+    };
+    loadTodos();
+  }, []);
 
   useEffect(() => {
     const allTodos = JSON.stringify(task);
@@ -61,49 +122,59 @@ function App() {
       }
     };
     saveTodos();
-  });
+  }, [task, removedTask, completedTask]);
+  //   const [isCompleted, setisCompleted] = useState(false);
+  //   const completedTaskHandler = () => {
+  //     if (!isCompleted) {
+  //       setCompletedTask([...completedTask, item]);
+  //       setisCompleted(true);
+  //     } else {
+  //       setCompletedTask(completedTask.filter(x => x.id !== item.id));
+  //       setisCompleted(false);
+  //     }
+  //   }
 
-  const renderTask: ListRenderItem<Task> = ({ item }) => {
-    return (
-      <View style={styles.listContainer}>
-        <TouchableOpacity
-          onPress={() => {
-            setisCompleted(!isCompleted);
-          }}
-          style={[styles.checkBox]}
-        >
-          <Text>{isCompleted ? '✅' : '☑️'}</Text>
-        </TouchableOpacity>
-        <View style={styles.taskContainer}>
-          <View style={styles.textContainer}>
-            <Text
-              style={[
-                styles.taskTitleText,
-                { textDecorationLine: isCompleted ? 'line-through' : 'none' },
+  //   return (
+  //     <View style={styles.listContainer}>
+  //       <TouchableOpacity
+  //         onPress={() => {
+  //           completedTaskHandler();
+  //         }}
+  //         style={[styles.checkBox]}
+  //       >
+  //         <Text>{isCompleted ? '✅' : '☑️'}</Text>
+  //       </TouchableOpacity>
+  //       <View style={styles.taskContainer}>
+  //         <View style={styles.textContainer}>
+  //           <Text
+  //             style={[
+  //               styles.taskTitleText,
+  //               { textDecorationLine: isCompleted ? 'line-through' : 'none' },
 
-                { color: isCompleted ? 'lightgreen' : '#fff' },
-              ]}
-            >
-              Title: {item.title}
-            </Text>
-            <Text
-              style={styles.descText}
-              numberOfLines={5}
-              ellipsizeMode="tail"
-            >
-              Description: {item.description}
-            </Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => removeTask(item.id)}
-            style={styles.removeButton}
-          >
-            <Text>❌</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
+  //               { color: isCompleted ? 'lightgreen' : '#fff' },
+  //             ]}
+  //           >
+  //             Title: {item.title}
+  //           </Text>
+  //           <Text
+  //             style={styles.descText}
+  //             numberOfLines={5}
+  //             ellipsizeMode="tail"
+  //           >
+  //             Description: {item.description}
+  //           </Text>
+  //         </View>
+  //         <TouchableOpacity
+  //           onPress={() => removeTask(item.id, item)}
+  //           style={styles.removeButton}
+  //         >
+  //           <Text>❌</Text>
+  //         </TouchableOpacity>
+  //       </View>
+  //     </View>
+  //   );
+  // };
+
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
@@ -178,7 +249,41 @@ function App() {
         {section === 0 && (
           <FlatList
             data={task}
-            renderItem={renderTask}
+            renderItem={({ item }) =>
+              <RenderTask
+                item={item}
+                onDelete={() => removeTask(item.id, item)}
+                onComplete={() => completedTaskHandler(item)}
+              />
+            }
+            contentContainerStyle={styles.listStyle}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+        {section === 1 && (
+          <FlatList
+            data={completedTask}
+            renderItem={({ item }) =>
+              <RenderTask
+                item={item}
+                onDelete={() => removeTask(item.id, item)}
+                onComplete={() => completedTaskHandler(item)}
+              />
+            }
+            contentContainerStyle={styles.listStyle}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+        {section === 2 && (
+          <FlatList
+            data={removedTask}
+            renderItem={({ item }) =>
+              <RenderTask
+                item={item}
+                onDelete={() => removeTask(item.id, item)}
+                onComplete={() => completedTaskHandler(item)}
+              />
+            }
             contentContainerStyle={styles.listStyle}
             showsVerticalScrollIndicator={false}
           />
