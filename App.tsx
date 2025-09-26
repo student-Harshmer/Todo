@@ -16,24 +16,30 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 type Task = {
   id: number;
   title: string;
+  description: string;
 };
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
   const [addTask, setAddTask] = useState('');
+  const [addDescription, setAddDescription] = useState('');
   const [task, setTask] = useState<Task[]>([]);
-  const [taskID, setTaskID] = useState(0);
+  const [isCompleted, setisCompleted] = useState(false);
+  const [section, setSection] = useState(0);
   const [removedTask, setRemovedTask] = useState<Task[]>([]);
   const [completedTask, setCompletedTask] = useState<Task[]>([]);
 
   const addTaskHandler = () => {
-    setTaskID(prev => prev + 1);
-    const newTask: Task = {
-      id: taskID,
-      title: addTask,
-    };
-    setTask([...task, newTask]);
-    setAddTask('');
+    if (addTask.trim().length > 0 && addDescription.trim().length > 0) {
+      const newTask: Task = {
+        id: Date.now(),
+        title: addTask,
+        description: addDescription,
+      };
+      setTask([...task, newTask]);
+      setAddTask('');
+      setAddDescription('');
+    }
   };
 
   const removeTask = (id: number) => {
@@ -59,17 +65,42 @@ function App() {
 
   const renderTask: ListRenderItem<Task> = ({ item }) => {
     return (
-      <View style={styles.taskContainer}>
-        <View>
-          <Text style={styles.idText}>Task ID: {item.id}</Text>
-          <Text style={styles.taskTitleText}>Title: {item.title}</Text>
-        </View>
+      <View style={styles.listContainer}>
         <TouchableOpacity
-          onPress={() => removeTask(item.id)}
-          style={styles.removeButton}
+          onPress={() => {
+            setisCompleted(!isCompleted);
+          }}
+          style={[styles.checkBox]}
         >
-          <Text>Remove</Text>
+          <Text>{isCompleted ? '✅' : '☑️'}</Text>
         </TouchableOpacity>
+        <View style={styles.taskContainer}>
+          <View style={styles.textContainer}>
+            <Text
+              style={[
+                styles.taskTitleText,
+                { textDecorationLine: isCompleted ? 'line-through' : 'none' },
+
+                { color: isCompleted ? 'lightgreen' : '#fff' },
+              ]}
+            >
+              Title: {item.title}
+            </Text>
+            <Text
+              style={styles.descText}
+              numberOfLines={5}
+              ellipsizeMode="tail"
+            >
+              Description: {item.description}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => removeTask(item.id)}
+            style={styles.removeButton}
+          >
+            <Text>❌</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
@@ -85,19 +116,73 @@ function App() {
             keyboardAppearance="dark"
             placeholder="Add task"
             placeholderTextColor={'gray'}
-            style={styles.input}
+            style={[styles.input, { padding: 10 }]}
+            returnKeyLabel="return"
+          />
+          <TextInput
+            value={addDescription}
+            onChangeText={setAddDescription}
+            keyboardAppearance="dark"
+            placeholder="Add description"
+            placeholderTextColor={'gray'}
+            style={[styles.input, { height: 70, padding: 5 }]}
             returnKeyLabel="return"
           />
           <TouchableOpacity style={styles.addBtn} onPress={addTaskHandler}>
             <Text style={styles.btnText}>Add task</Text>
           </TouchableOpacity>
         </View>
-        <FlatList
-          data={task}
-          renderItem={renderTask}
-          contentContainerStyle={styles.listStyle}
-          showsVerticalScrollIndicator={false}
-        />
+        <View style={styles.categoryContainer}>
+          <TouchableOpacity
+            onPress={() => {
+              setSection(0);
+            }}
+            style={[
+              { borderBottomColor: section === 0 ? 'green' : '' },
+              { borderBottomWidth: section === 0 ? 2 : 0 },
+
+              styles.categotyButton,
+            ]}
+          >
+            <Text style={styles.categoryName}>All tasks</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              setSection(1);
+            }}
+            style={[
+              { borderBottomColor: section === 1 ? 'green' : '' },
+              { borderBottomWidth: section === 1 ? 2 : 0 },
+
+              styles.categotyButton,
+            ]}
+          >
+            <Text style={styles.categoryName}>Completed</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              setSection(2);
+            }}
+            style={[
+              { borderBottomColor: section === 2 ? 'green' : '' },
+              { borderBottomWidth: section === 2 ? 2 : 0 },
+              styles.categotyButton,
+            ]}
+          >
+            <Text style={styles.categoryName}>Removed</Text>
+          </TouchableOpacity>
+        </View>
+
+        {section === 0 && (
+          <FlatList
+            data={task}
+            renderItem={renderTask}
+            contentContainerStyle={styles.listStyle}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -108,29 +193,38 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  listContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   titleText: {
     fontSize: 20,
     textAlign: 'center',
     fontWeight: 'bold',
-    paddingBottom: 10,
   },
   listStyle: {
     gap: 7,
     paddingHorizontal: 10,
-    flexGrow: 1,
   },
   taskContainer: {
+    paddingVertical: 20,
+    paddingHorizontal: 10,
     backgroundColor: '#000',
     borderRadius: 12,
-    padding: 10,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    width: '90%',
+  },
+  textContainer: {
+    width: '75%',
+    gap: 5,
   },
   taskTitleText: {
-    marginTop: 10,
-    color: '#fff',
     fontSize: 17,
     fontWeight: 500,
+  },
+  descText: {
+    color: '#fff',
   },
   idText: {
     color: '#fff',
@@ -138,20 +232,16 @@ const styles = StyleSheet.create({
     fontWeight: 500,
   },
   removeButton: {
-    backgroundColor: 'red',
-    width: 100,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 20,
-    marginTop: 10,
-    paddingVertical: 10,
+    position: 'absolute',
+    right: 15,
+    top: 20,
   },
   inputContainer: {
+    width: '100%',
     gap: 10,
     marginHorizontal: 16,
     paddingVertical: 20,
     alignSelf: 'center',
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
@@ -163,8 +253,25 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 8,
     backgroundColor: '#ccc',
-    width: '75%',
-    padding: 10,
+    width: '90%',
+  },
+  checkBox: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 3,
+  },
+  categoryContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  categoryName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  categotyButton: {
+    padding: 5,
   },
 });
 
