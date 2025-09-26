@@ -10,7 +10,6 @@ import {
   useColorScheme,
   View,
   TextInput,
-  Alert,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
@@ -42,14 +41,9 @@ function App() {
     }
   };
 
-  const removeTask = (id: number, removeCompleted: boolean) => {
-    if (removeCompleted) {
-      const list = completedTask.filter(x => x.id !== id);
-      setCompletedTask(list);
-    } else {
-      const list = task.filter(item => item.id !== id);
-      setTask(list);
-    }
+  const removeTask = (id: number) => {
+    const list = task.filter(item => item.id !== id);
+    setTask(list);
   };
 
   useEffect(() => {
@@ -77,14 +71,30 @@ function App() {
     loadTodos();
   }, []);
 
+  useEffect(() => {
+    const allTodos = JSON.stringify(task);
+    const removedTodos = JSON.stringify(removedTask);
+    const completedTodos = JSON.stringify(completedTask);
+    const saveTodos = async () => {
+      try {
+        await AsyncStorage.setItem('AllTodos', allTodos);
+        await AsyncStorage.setItem('RemovedTodos', removedTodos);
+        await AsyncStorage.setItem('Completed', completedTodos);
+      } catch (e) {
+        console.error('Error saving string data:', e);
+      }
+    };
+    saveTodos();
+  }, [task, removedTask, completedTask]);
+
+
   const RenderTask = ({ item }: { item: Task }) => {
     const [isCompleted, setisCompleted] = useState(false);
-
     const completedTaskHandler = () => {
-      if (!isCompleted) {
+      if (isCompleted) {
         setCompletedTask([...completedTask, item]);
       } else {
-        removeTask(item.id, true);
+        setCompletedTask(completedTask.filter(x => x.id !== item.id));
       }
     }
 
@@ -92,8 +102,7 @@ function App() {
       <View style={styles.listContainer}>
         <TouchableOpacity
           onPress={() => {
-            setisCompleted(prev => !prev);
-            Alert.alert(`Is comp, ${isCompleted}, ${item.id}`)
+            setisCompleted(!isCompleted);
             completedTaskHandler();
           }}
           style={[styles.checkBox]}
@@ -106,6 +115,7 @@ function App() {
               style={[
                 styles.taskTitleText,
                 { textDecorationLine: isCompleted ? 'line-through' : 'none' },
+
                 { color: isCompleted ? 'lightgreen' : '#fff' },
               ]}
             >
@@ -120,7 +130,7 @@ function App() {
             </Text>
           </View>
           <TouchableOpacity
-            onPress={() => removeTask(item.id, false)}
+            onPress={() => removeTask(item.id)}
             style={styles.removeButton}
           >
             <Text>❌</Text>
